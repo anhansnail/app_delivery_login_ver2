@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController {
+class ProfileViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     
     @IBOutlet var cameraOL: UIImageView!{
         didSet {
@@ -15,6 +15,7 @@ class ProfileViewController: UIViewController {
         }
     }
     
+    //date packer
     @IBOutlet var dateOL: UITextField!
     let datePicker = UIDatePicker()
     func createToolBar() -> UIToolbar {
@@ -50,9 +51,90 @@ class ProfileViewController: UIViewController {
         self.dateOL.text = dateFormatr.string(from: (datePicker.date))
         self.view.endEditing(true)
     }
+    
+    
+    // camera
+    @IBOutlet var profilePic: UIImageView!
+    
+    @objc func imageTapped(gesture:UIGestureRecognizer) {
+        if let profile1Pic = gesture.view as? UIImageView {
+            print("Image Tapped")
+            showActionSheet()
+        }
+    }
+    
+    func showActionSheet() {
+        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: UIAlertController.Style.actionSheet)
+        
+        actionSheet.addAction(UIAlertAction(title: "Camera", style: UIAlertAction.Style.default, handler: { (alert:UIAlertAction!) -> Void in
+            self.camera()
+            print("camera")
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "Gallery", style: UIAlertAction.Style.default, handler: { (alert:UIAlertAction!) -> Void in
+            self.photoLibrary()
+            print("library")
+        }))
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        
+        self.present(actionSheet, animated: true, completion: nil)
+        
+    }
+    
+    //display camera
+    func camera()
+    {
+        var myPickerController = UIImagePickerController()
+        
+        if(UIImagePickerController .isSourceTypeAvailable(UIImagePickerController.SourceType.camera))
+        {
+            myPickerController.delegate = self;
+            myPickerController.sourceType = UIImagePickerController.SourceType.camera
+            myPickerController.allowsEditing = true
+            self.present(myPickerController, animated: true, completion: nil)
+        }
+        else
+        {
+            let alert  = UIAlertController(title: "Warning", message: "You don't have camera", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+        
+    }
+    
+    func photoLibrary()
+    {
+        
+        var myPickerController = UIImagePickerController()
+        myPickerController.delegate = self;
+        myPickerController.allowsEditing = true
+        myPickerController.sourceType = UIImagePickerController.SourceType.photoLibrary
+        
+        self.present(myPickerController, animated: true, completion: nil)
+        
+    }
+    
+    //trigger finish pick
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        profilePic.image = info[.originalImage] as? UIImage
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         createDatePicker()
+        
+        //dismiss keyboard
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
+        
+        
+        //pick image
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
+        profilePic.addGestureRecognizer(tapGesture)
+        profilePic.isUserInteractionEnabled = true
+        
         // Do any additional setup after loading the view.
     }
     /*
