@@ -12,6 +12,9 @@ class SignInViewController: UIViewController {
     @IBOutlet var infoStackViewOL: UIStackView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        //dismiss keyboard
+        let tap = UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing))
+        view.addGestureRecognizer(tap)
         // Do any additional setup after loading the view.
     }
 
